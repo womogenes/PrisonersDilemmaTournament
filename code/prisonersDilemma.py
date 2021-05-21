@@ -64,7 +64,7 @@ def tallyRoundScores(history):
     return scoreA/ROUND_LENGTH, scoreB/ROUND_LENGTH
     
 def outputRoundResults(f, pair, roundHistory, scoresA, scoresB):
-    f.write(pair[0]+" (P1)  VS.  "+pair[1]+" (P2)\n")
+    f.write(pair[0]+" vs "+pair[1]+"\n")
     for p in range(2):
         for t in range(roundHistory.shape[1]):
             move = roundHistory[p,t]
@@ -88,7 +88,6 @@ def runFullPairingTournament(inFolder, outFile):
         if file.endswith(".py"):
             STRATEGY_LIST.append(file[:-3])
             
-            
     for strategy in STRATEGY_LIST:
         scoreKeeper[strategy] = 0
         
@@ -99,19 +98,22 @@ def runFullPairingTournament(inFolder, outFile):
         outputRoundResults(f, pair, roundHistory, scoresA, scoresB)
         scoreKeeper[pair[0]] += scoresA
         scoreKeeper[pair[1]] += scoresB
+
         
     scoresNumpy = np.zeros(len(scoreKeeper))
     for i in range(len(STRATEGY_LIST)):
         scoresNumpy[i] = scoreKeeper[STRATEGY_LIST[i]]
     rankings = np.argsort(scoresNumpy)
 
-    f.write("\n\nTOTAL SCORES\n")
+    results = ""
+    results += "\n\nTOTAL SCORES\n"
     for rank in range(len(STRATEGY_LIST)):
         i = rankings[-1-rank]
         score = scoresNumpy[i]
         scorePer = score/(len(STRATEGY_LIST)-1)
-        f.write("#"+str(rank+1)+": "+pad(STRATEGY_LIST[i]+":",16)+' %.3f'%score+'  (%.3f'%scorePer+" average)\n")
-        
+        results += "#"+str(rank+1)+": "+pad(STRATEGY_LIST[i]+":",16)+' %.3f'%score+'  (%.3f'%scorePer+" average)\n"
+    
+    f.write(results)
     f.flush()
     f.close()
     print("Done with everything! Results file written to "+RESULTS_FILE)
